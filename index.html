@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mistura Ideal — Calculadora de Combustível</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-hover: #22263a;
+      --border: #2a2e3f;
+      --text: #e4e6ed;
+      --text-muted: #8b8fa3;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --green: #34d399;
+      --green-glow: rgba(52, 211, 153, 0.15);
+      --orange: #fb923c;
+      --orange-glow: rgba(251, 146, 60, 0.15);
+      --red: #f87171;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+      line-height: 1.5;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 6px;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 4px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(79, 140, 255, 0.3);
+    }
+
+    .tab-btn:not(.active):hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    /* ===== FORM CARD ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper .prefix {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 12px 14px 12px 32px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .input-wrapper input::placeholder {
+      color: #555;
+    }
+
+    /* Litros preset */
+    .preset-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .preset-btn {
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .preset-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    /* ===== SUBMIT ===== */
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* ===== RESULTADOS ===== */
+    .results {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .results-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .result-card {
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .result-card.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .result-card.gasoline {
+      background: var(--orange-glow);
+      border-color: rgba(251, 146, 60, 0.25);
+    }
+
+    .result-card.ethanol {
+      background: var(--green-glow);
+      border-color: rgba(52, 211, 153, 0.25);
+    }
+
+    .result-card.total {
+      background: var(--accent-glow);
+      border-color: rgba(79, 140, 255, 0.25);
+    }
+
+    .result-card .label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .result-card.gasoline .label { color: var(--orange); }
+    .result-card.ethanol .label { color: var(--green); }
+    .result-card.total .label { color: var(--accent); }
+
+    .result-card .value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .result-card .sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ===== INFO BOX ===== */
+    .info-box {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      width: 100%;
+      max-width: 480px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: var(--text);
+    }
+
+    /* ===== ERROR ===== */
+    .error-msg {
+      color: var(--red);
+      font-size: 0.78rem;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 400px) {
+      .preset-group {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .result-card .value {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>Mistura Ideal</h1>
+    <p>20% fóssil + 80% etanol no tanque</p>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="litros" onclick="switchTab('litros')">
+      Por Litros
+    </button>
+    <button class="tab-btn" data-tab="reais" onclick="switchTab('reais')">
+      Por Valor (R$)
+    </button>
+  </nav>
+
+  <!-- ========== SEÇÃO 1: POR LITROS ========== -->
+  <div class="card">
+    <div id="section-litros" class="section active">
+
+      <div class="field">
+        <label>Preço da Gasolina (R$/L)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="text" id="price-gas-litros" data-raw-value="" placeholder="Ex: 5,89" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="error-msg" id="err-price-gas-litros">Informe um preço válido.</div>
+      </div>
+
+      <div class="field">
+        <label>Preço do Etanol (R$/L)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="text" id="price-eth-litros" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="error-msg" id="err-price-eth-litros">Informe um preço válido.</div>
+      </div>
+
+      <div class="field">
+        <label>Litros Totais Desejados</label>
+        <input type="number" id="litros-custom" step="0.1" min="1" placeholder="Ou digite um valor" inputmode="decimal">
+        <div class="preset-group">
+          <button class="preset-btn" onclick="selectPreset(10, this)">10 L</button>
+          <button class="preset-btn" onclick="selectPreset(20, this)">20 L</button>
+          <button class="preset-btn" onclick="selectPreset(30, this)">30 L</button>
+          <button class="preset-btn" onclick="selectPreset(40, this)">40 L</button>
+          <button class="preset-btn" onclick="selectPreset(54, this)">Tanque Cheio</button>
+          <button class="preset-btn" onclick="selectPreset(0, this)">Custom</button>
+        </div>
+        <div class="error-msg" id="err-litros">Informe a quantidade de litros.</div>
+      </div>
+
+      <button class="btn" id="btn-litros" onclick="calcLitros()">Calcular</button>
+
+      <!-- Resultados -->
+      <div class="results" id="results-litros">
+        <div class="results-title">Seu abastecimento ideal</div>
+        <div class="result-grid">
+          <div class="result-card gasoline">
+            <div class="label">Gasolina Comum</div>
+            <div class="value" id="res-gas-litros">—</div>
+            <div class="sub" id="res-gas-sub-litros"></div>
+          </div>
+          <div class="result-card ethanol">
+            <div class="label">Etanol Hidratado</div>
+            <div class="value" id="res-eth-litros">—</div>
+            <div class="sub" id="res-eth-sub-litros"></div>
+          </div>
+          <div class="result-card total full-width">
+            <div class="label">Custo Total Aproximado</div>
+            <div class="value" id="res-total-litros">—</div>
+            <div class="sub" id="res-total-sub-litros"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SEÇÃO 2: POR VALOR ========== -->
+    <div id="section-reais" class="section">
+
+      <div class="field">
+        <label>Preço da Gasolina (R$/L)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="text" id="price-gas-reais" data-raw-value="" placeholder="Ex: 5,89" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="error-msg" id="err-price-gas-reais">Informe um preço válido.</div>
+      </div>
+
+      <div class="field">
+        <label>Preço do Etanol (R$/L)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="text" id="price-eth-reais" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="error-msg" id="err-price-eth-reais">Informe um preço válido.</div>
+      </div>
+
+      <div class="field">
+        <label>Valor Disponível (R$)</label>
+        <div class="input-wrapper">
+          <span class="prefix">R$</span>
+          <input type="text" id="budget-reais" data-raw-value="" placeholder="Ex: 200,00" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="error-msg" id="err-budget-reais">Informe um valor válido.</div>
+      </div>
+
+      <button class="btn" id="btn-reais" onclick="calcReais()">Calcular</button>
+
+      <!-- Resultados -->
+      <div class="results" id="results-reais">
+        <div class="results-title">Seu abastecimento ideal</div>
+        <div class="result-grid">
+          <div class="result-card gasoline">
+            <div class="label">Gasolina Comum</div>
+            <div class="value" id="res-gas-reais">—</div>
+            <div class="sub" id="res-gas-sub-reais"></div>
+          </div>
+          <div class="result-card ethanol">
+            <div class="label">Etanol Hidratado</div>
+            <div class="value" id="res-eth-reais">—</div>
+            <div class="sub" id="res-eth-sub-reais"></div>
+          </div>
+          <div class="result-card total">
+            <div class="label">Total em Litros</div>
+            <div class="value" id="res-total-litros-reais">—</div>
+            <div class="sub" id="res-total-litros-sub-reais"></div>
+          </div>
+          <div class="result-card total">
+            <div class="label">Valor Gasto</div>
+            <div class="value" id="res-total-gasto-reais">—</div>
+            <div class="sub" id="res-total-gasto-sub-reais"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info -->
+  <div class="info-box">
+    <strong>Como funciona:</strong> A gasolina comum já contém 32% de etanol na composição.
+    Para atingir 80% de etanol no tanque, misturamos ~29,4% de gasolina comum com ~70,6% de etanol hidratado.
+    O resultado é aproximado e pode variar conforme o posto.
+  </div>
+
+  <script>
+    /* ===== TAB SWITCHING ===== */
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      document.getElementById('section-litros').classList.toggle('active', tab === 'litros');
+      document.getElementById('section-reais').classList.toggle('active', tab === 'reais');
+    }
+
+    /* ===== PRESET LITERS ===== */
+    function selectPreset(liters, el) {
+      document.querySelectorAll('.preset-btn').forEach(function(b) {
+        b.classList.remove('selected');
+      });
+      el.classList.add('selected');
+
+      var input = document.getElementById('litros-custom');
+      if (liters === 0) {
+        input.value = '';
+        input.focus();
+      } else {
+        input.value = liters;
+      }
+    }
+
+    /* ===== MÁSCARA MOEDA BR (R$ X.XXX,XX) ===== */
+    function maskCurrency(input) {
+      var raw = input.dataset.rawValue || '';
+      if (raw === '') {
+        input.value = '';
+        return;
+      }
+      var num = parseInt(raw, 10);
+      if (isNaN(num)) { input.value = ''; return; }
+      var intPart = Math.floor(num / 100);
+      var decPart = num % 100;
+      var intStr = intPart.toLocaleString('pt-BR');
+      input.value = intStr + ',' + (decPart < 10 ? '0' : '') + decPart;
+    }
+
+    function attachCurrencyMask(inputId) {
+      var el = document.getElementById(inputId);
+      el.addEventListener('input', function(e) {
+        var digits = this.value.replace(/\D/g, '');
+        if (digits === '') {
+          this.dataset.rawValue = '';
+          this.value = '';
+          return;
+        }
+        /* Limita a 8 dígitos (R$ 999.999,99) */
+        if (digits.length > 8) digits = digits.slice(0, 8);
+        this.dataset.rawValue = digits;
+        maskCurrency(this);
+      });
+      el.addEventListener('focus', function() {
+        /* Posiciona cursor no final */
+        var len = this.value.length;
+        this.setSelectionRange(len, len);
+      });
+    }
+
+    /* ===== HELPERS ===== */
+    function val(id) {
+      var el = document.getElementById(id);
+      /* Se tem máscara, usa rawValue */
+      if (el.dataset.rawValue !== undefined) {
+        var raw = el.dataset.rawValue;
+        if (raw === '') return null;
+        var v = parseInt(raw, 10) / 100;
+        return isNaN(v) ? null : v;
+      }
+      var v = parseFloat(el.value);
+      return isNaN(v) ? null : v;
+    }
+
+    function showErr(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function hideErr(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    function clearErrors(prefix) {
+      var ids = document.querySelectorAll('[id^="err-' + prefix + '"]');
+      for (var i = 0; i < ids.length; i++) {
+        ids[i].classList.remove('show');
+      }
+    }
+
+    function fmtBRL(n) {
+      return 'R$ ' + n.toFixed(2).replace('.', ',');
+    }
+
+    function fmtL(n) {
+      return n.toFixed(2).replace('.', ',') + ' L';
+    }
+
+    function pct(n) {
+      return (n * 100).toFixed(1).replace('.', ',') + '%';
+    }
+
+    /* ===== MATEMÁTICA =====
+       Gasolina comercial = 68% fóssil, 32% etanol
+       Etanol hidratado    = 100% etanol
+       Regra: 20% fóssil + 80% etanol no tanque
+
+       0.68 * G = 0.20 * (G + E)
+       G + E = L
+       => G = L * 0.20 / 0.68
+       => E = L - G
+    */
+
+    var RATIO_GAS = 0.20 / 0.68; // ~0.2941176
+
+    /* ===== CALCULAR POR LITROS ===== */
+    function calcLitros() {
+      clearErrors('price-gas-litros');
+      clearErrors('price-eth-litros');
+      clearErrors('litros');
+
+      var priceGas = val('price-gas-litros');
+      var priceEth = val('price-eth-litros');
+      var liters = val('litros-custom');
+      var valid = true;
+
+      if (priceGas === null || priceGas <= 0) {
+        showErr('err-price-gas-litros');
+        valid = false;
+      }
+      if (priceEth === null || priceEth <= 0) {
+        showErr('err-price-eth-litros');
+        valid = false;
+      }
+      if (liters === null || liters <= 0) {
+        showErr('err-litros');
+        valid = false;
+      }
+      if (!valid) return;
+
+      var gasLiters = liters * RATIO_GAS;
+      var ethLiters = liters - gasLiters;
+      var costGas = gasLiters * priceGas;
+      var costEth = ethLiters * priceEth;
+      var costTotal = costGas + costEth;
+
+      document.getElementById('res-gas-litros').textContent = fmtL(gasLiters);
+      document.getElementById('res-gas-sub-litros').textContent =
+        fmtBRL(costGas) + ' (' + pct(gasLiters / liters) + ')';
+      document.getElementById('res-eth-litros').textContent = fmtL(ethLiters);
+      document.getElementById('res-eth-sub-litros').textContent =
+        fmtBRL(costEth) + ' (' + pct(ethLiters / liters) + ')';
+      document.getElementById('res-total-litros').textContent = fmtBRL(costTotal);
+      document.getElementById('res-total-sub-litros').textContent =
+        fmtL(liters) + ' no total — ' + pct(costGas / costTotal) + ' gasolina, ' +
+        pct(costEth / costTotal) + ' etanol';
+
+      document.getElementById('results-litros').classList.add('show');
+    }
+
+    /* ===== CALCULAR POR REAIS ===== */
+    function calcReais() {
+      clearErrors('price-gas-reais');
+      clearErrors('price-eth-reais');
+      clearErrors('budget-reais');
+
+      var priceGas = val('price-gas-reais');
+      var priceEth = val('price-eth-reais');
+      var budget = val('budget-reais');
+      var valid = true;
+
+      if (priceGas === null || priceGas <= 0) {
+        showErr('err-price-gas-reais');
+        valid = false;
+      }
+      if (priceEth === null || priceEth <= 0) {
+        showErr('err-price-eth-reais');
+        valid = false;
+      }
+      if (budget === null || budget <= 0) {
+        showErr('err-budget-reais');
+        valid = false;
+      }
+      if (!valid) return;
+
+      /* E = 2.4 * G (sempre) */
+      var ratioEth = 2.4;
+      var custoPorLitroMisto = priceGas + ratioEth * priceEth;
+      var gasLiters = budget / custoPorLitroMisto;
+      var ethLiters = ratioEth * gasLiters;
+      var totalLiters = gasLiters + ethLiters;
+      var spentGas = gasLiters * priceGas;
+      var spentEth = ethLiters * priceEth;
+      var spentTotal = spentGas + spentEth;
+
+      document.getElementById('res-gas-reais').textContent = fmtL(gasLiters);
+      document.getElementById('res-gas-sub-reais').textContent =
+        fmtBRL(spentGas) + ' (' + pct(gasLiters / totalLiters) + ')';
+      document.getElementById('res-eth-reais').textContent = fmtL(ethLiters);
+      document.getElementById('res-eth-sub-reais').textContent =
+        fmtBRL(spentEth) + ' (' + pct(ethLiters / totalLiters) + ')';
+      document.getElementById('res-total-litros-reais').textContent = fmtL(totalLiters);
+      document.getElementById('res-total-litros-sub-reais').textContent =
+        'Tanque de ~' + Math.ceil(totalLiters) + 'L';
+      document.getElementById('res-total-gasto-reais').textContent = fmtBRL(spentTotal);
+      document.getElementById('res-total-gasto-sub-reais').textContent =
+        'Sobra: ' + fmtBRL(budget - spentTotal);
+
+      document.getElementById('results-reais').classList.add('show');
+    }
+
+    /* ===== LOCALSTORAGE: SALVAR / RESTAURAR ===== */
+    var STORAGE_KEY = 'mistura_ideal_data';
+
+    function saveFields() {
+      var activeTab = document.querySelector('.tab-btn.active');
+      var data = {
+        activeTab: activeTab ? activeTab.dataset.tab : 'litros',
+        priceGasLitros: document.getElementById('price-gas-litros').dataset.rawValue || '',
+        priceEthLitros: document.getElementById('price-eth-litros').dataset.rawValue || '',
+        litrosCustom: document.getElementById('litros-custom').value,
+        priceGasReais: document.getElementById('price-gas-reais').dataset.rawValue || '',
+        priceEthReais: document.getElementById('price-eth-reais').dataset.rawValue || '',
+        budgetReais: document.getElementById('budget-reais').dataset.rawValue || ''
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadFields() {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      try {
+        var data = JSON.parse(raw);
+        function restoreCurrency(id, rawVal) {
+          if (!rawVal) return;
+          var el = document.getElementById(id);
+          el.dataset.rawValue = rawVal;
+          maskCurrency(el);
+        }
+        restoreCurrency('price-gas-litros', data.priceGasLitros);
+        restoreCurrency('price-eth-litros', data.priceEthLitros);
+        if (data.litrosCustom) document.getElementById('litros-custom').value = data.litrosCustom;
+        restoreCurrency('price-gas-reais', data.priceGasReais);
+        restoreCurrency('price-eth-reais', data.priceEthReais);
+        restoreCurrency('budget-reais', data.budgetReais);
+        if (data.activeTab && data.activeTab !== 'litros') switchTab(data.activeTab);
+      } catch (e) { /* ignora dados corrompidos */ }
+    }
+
+    /* Inicializa máscaras nos campos de moeda */
+    ['price-gas-litros', 'price-eth-litros', 'price-gas-reais', 'price-eth-reais', 'budget-reais'].forEach(attachCurrencyMask);
+
+    /* Salva a cada alteração de input */
+    document.querySelectorAll('input').forEach(function(input) {
+      input.addEventListener('input', saveFields);
+    });
+
+    /* Restaura ao carregar */
+    loadFields();
+
+    /* Enter key triggers calculation */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var active = document.querySelector('.section.active');
+        if (active && active.id === 'section-litros') {
+          calcLitros();
+        } else {
+          calcReais();
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
