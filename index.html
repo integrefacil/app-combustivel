@@ -202,29 +202,6 @@
       color: var(--accent);
     }
 
-    /* ===== SUBMIT ===== */
-    .btn {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: var(--radius-sm);
-      background: var(--accent);
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-
-    .btn:hover { opacity: 0.9; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
     /* ===== RESULTADOS ===== */
     .results {
       margin-top: 20px;
@@ -394,8 +371,6 @@
         <div class="error-msg" id="err-litros">Informe a quantidade de litros.</div>
       </div>
 
-      <button class="btn" id="btn-litros" onclick="calcLitros()">Calcular</button>
-
       <!-- Resultados -->
       <div class="results" id="results-litros">
         <div class="results-title">Seu abastecimento ideal</div>
@@ -448,8 +423,6 @@
         </div>
         <div class="error-msg" id="err-budget-reais">Informe um valor válido.</div>
       </div>
-
-      <button class="btn" id="btn-reais" onclick="calcReais()">Calcular</button>
 
       <!-- Resultados -->
       <div class="results" id="results-reais">
@@ -744,18 +717,6 @@
     /* Restaura ao carregar e calcula se campos estiverem preenchidos */
     loadFields();
     autoCalc();
-
-    /* Enter key triggers calculation */
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        var active = document.querySelector('.section.active');
-        if (active && active.id === 'section-litros') {
-          calcLitros();
-        } else {
-          calcReais();
-        }
-      }
-    });
   </script>
 
 </body>
