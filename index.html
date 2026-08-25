@@ -569,8 +569,8 @@
 
       var ratioEth = 2.4;
       var custoPorLitroMisto = priceGas + ratioEth * priceEth;
-      var gasLiters = Math.ceil(budget / custoPorLitroMisto);
-      var ethLiters = Math.ceil(ratioEth * gasLiters);
+      var gasLiters = Math.floor(budget / custoPorLitroMisto);
+      var ethLiters = Math.floor(ratioEth * gasLiters);
       var totalLiters = gasLiters + ethLiters;
       var spentGas = gasLiters * priceGas;
       var spentEth = ethLiters * priceEth;
