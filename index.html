@@ -511,6 +511,8 @@
       } else {
         input.value = liters;
       }
+      saveFields();
+      autoCalc();
     }
 
     /* ===== MÁSCARA MOEDA BR (R$ X.XXX,XX) ===== */
@@ -612,21 +614,12 @@
       var priceGas = val('price-gas-litros');
       var priceEth = val('price-eth-litros');
       var liters = val('litros-custom');
-      var valid = true;
 
-      if (priceGas === null || priceGas <= 0) {
-        showErr('err-price-gas-litros');
-        valid = false;
+      /* Auto: só calcula se todos preenchidos, senão limpa resultados */
+      if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0 || liters === null || liters <= 0) {
+        document.getElementById('results-litros').classList.remove('show');
+        return;
       }
-      if (priceEth === null || priceEth <= 0) {
-        showErr('err-price-eth-litros');
-        valid = false;
-      }
-      if (liters === null || liters <= 0) {
-        showErr('err-litros');
-        valid = false;
-      }
-      if (!valid) return;
 
       var gasLiters = liters * RATIO_GAS;
       var ethLiters = liters - gasLiters;
@@ -657,23 +650,13 @@
       var priceGas = val('price-gas-reais');
       var priceEth = val('price-eth-reais');
       var budget = val('budget-reais');
-      var valid = true;
 
-      if (priceGas === null || priceGas <= 0) {
-        showErr('err-price-gas-reais');
-        valid = false;
+      /* Auto: só calcula se todos preenchidos, senão limpa resultados */
+      if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0 || budget === null || budget <= 0) {
+        document.getElementById('results-reais').classList.remove('show');
+        return;
       }
-      if (priceEth === null || priceEth <= 0) {
-        showErr('err-price-eth-reais');
-        valid = false;
-      }
-      if (budget === null || budget <= 0) {
-        showErr('err-budget-reais');
-        valid = false;
-      }
-      if (!valid) return;
 
-      /* E = 2.4 * G (sempre) */
       var ratioEth = 2.4;
       var custoPorLitroMisto = priceGas + ratioEth * priceEth;
       var gasLiters = budget / custoPorLitroMisto;
@@ -697,6 +680,16 @@
         'Sobra: ' + fmtBRL(budget - spentTotal);
 
       document.getElementById('results-reais').classList.add('show');
+    }
+
+    /* ===== AUTO-CALCULO: atualiza a cada input ===== */
+    function autoCalc() {
+      var active = document.querySelector('.section.active');
+      if (active && active.id === 'section-litros') {
+        calcLitros();
+      } else {
+        calcReais();
+      }
     }
 
     /* ===== LOCALSTORAGE: SALVAR / RESTAURAR ===== */
@@ -740,13 +733,17 @@
     /* Inicializa máscaras nos campos de moeda */
     ['price-gas-litros', 'price-eth-litros', 'price-gas-reais', 'price-eth-reais', 'budget-reais'].forEach(attachCurrencyMask);
 
-    /* Salva a cada alteração de input */
+    /* Salva e recalcula a cada alteração de input */
     document.querySelectorAll('input').forEach(function(input) {
-      input.addEventListener('input', saveFields);
+      input.addEventListener('input', function() {
+        saveFields();
+        autoCalc();
+      });
     });
 
-    /* Restaura ao carregar */
+    /* Restaura ao carregar e calcula se campos estiverem preenchidos */
     loadFields();
+    autoCalc();
 
     /* Enter key triggers calculation */
     document.addEventListener('keydown', function(e) {
