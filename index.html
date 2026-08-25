@@ -46,6 +46,15 @@
     .header {
       text-align: center;
       margin-bottom: 28px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
 
     .header h1 {
@@ -62,6 +71,26 @@
       color: var(--text-muted);
       font-size: 0.875rem;
       margin-top: 6px;
+    }
+
+    .settings-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .settings-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     /* ===== TABS ===== */
@@ -278,6 +307,117 @@
       margin-top: 2px;
     }
 
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 0;
+    }
+
+    .modal-header h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.6rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .modal-footer .btn-outline {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .modal-footer .btn-outline:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    .modal-footer .btn-primary {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .modal-footer .btn-primary:hover { opacity: 0.9; }
+
+    .field-hint {
+      font-size: 0.75rem;
+      margin-top: 4px;
+      min-height: 1.1em;
+    }
+
+    .field-hint.error { color: var(--red, #f87171); }
+    .field-hint.ok { color: var(--green); }
+
     /* ===== INFO BOX ===== */
     .info-box {
       margin-top: 20px;
@@ -312,8 +452,15 @@
 <body>
 
   <header class="header">
-    <h1>Mistura Ideal</h1>
-    <p>20% fóssil + 80% etanol no tanque</p>
+    <div class="header-row">
+      <div>
+        <h1>Mistura Ideal</h1>
+        <p id="subtitle">20% fóssil + 80% etanol no tanque</p>
+      </div>
+      <button class="settings-btn" onclick="openSettings()" title="Configurações">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
   </header>
 
   <!-- ========== PREÇOS COMPARTILHADOS ========== -->
@@ -429,9 +576,63 @@
 
   <!-- Info -->
   <div class="info-box">
-    <strong>Como funciona:</strong> A gasolina comum já contém 32% de etanol na composição.
-    Para atingir 80% de etanol no tanque, misturamos ~29,4% de gasolina comum com ~70,6% de etanol hidratado.
+    <strong>Como funciona:</strong> A gasolina comum já contém etanol na composição.
+    A mistura ideal é calculada conforme as configurações definidas (acessíveis pelo ícone de engrenagem).
     O resultado é aproximado e pode variar conforme o posto.
+  </div>
+
+  <!-- ========== MODAL CONFIGURAÇÕES ========== -->
+  <div class="modal-overlay" id="settings-modal" onclick="closeSettings(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Configurações</h2>
+        <button class="modal-close" onclick="closeSettings()">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="field">
+          <label>% Fóssil no tanque (Gasolina Comum)</label>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="stepConfig('pctFossil', -1)">−</button>
+            <div class="input-wrapper">
+              <span class="prefix">%</span>
+              <input type="number" id="cfg-pct-fossil" min="1" max="99" step="1" inputmode="numeric">
+            </div>
+            <button class="stepper-btn" onclick="stepConfig('pctFossil', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>% Etanol no tanque</label>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="stepConfig('pctEthanol', -1)">−</button>
+            <div class="input-wrapper">
+              <span class="prefix">%</span>
+              <input type="number" id="cfg-pct-ethanol" min="1" max="99" step="1" inputmode="numeric">
+            </div>
+            <button class="stepper-btn" onclick="stepConfig('pctEthanol', 1)">+</button>
+          </div>
+          <div class="field-hint" id="cfg-sum-hint"></div>
+        </div>
+
+        <div class="field">
+          <label>% Etanol dentro da Gasolina Comercial</label>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="stepConfig('pctEthGas', -1)">−</button>
+            <div class="input-wrapper">
+              <span class="prefix">%</span>
+              <input type="number" id="cfg-pct-eth-gas" min="0" max="99" step="1" inputmode="numeric">
+            </div>
+            <button class="stepper-btn" onclick="stepConfig('pctEthGas', 1)">+</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-outline" onclick="resetSettings()">Padrão</button>
+        <button class="btn-primary" onclick="saveSettings()">Salvar</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -442,6 +643,108 @@
       });
       document.getElementById('section-litros').classList.toggle('active', tab === 'litros');
       document.getElementById('section-reais').classList.toggle('active', tab === 'reais');
+    }
+
+    /* ===== CONFIGURAÇÕES ===== */
+    var CONFIG_KEY = 'mistura_ideal_config';
+    var config = {
+      pctFossil: 20,
+      pctEthanol: 80,
+      pctEthGas: 32
+    };
+
+    function calcRatio() {
+      var fossilDec = config.pctFossil / 100;
+      var ethGasDec = config.pctEthGas / 100;
+      return fossilDec / (1 - ethGasDec);
+    }
+
+    function calcEthRatio() {
+      return (1 - calcRatio()) / calcRatio();
+    }
+
+    function updateSubtitle() {
+      document.getElementById('subtitle').textContent =
+        config.pctFossil + '% fóssil + ' + config.pctEthanol + '% etanol no tanque';
+    }
+
+    function openSettings() {
+      document.getElementById('cfg-pct-fossil').value = config.pctFossil;
+      document.getElementById('cfg-pct-ethanol').value = config.pctEthanol;
+      document.getElementById('cfg-pct-eth-gas').value = config.pctEthGas;
+      validateConfig();
+      document.getElementById('settings-modal').classList.add('open');
+    }
+
+    function closeSettings(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('settings-modal').classList.remove('open');
+    }
+
+    function stepConfig(field, delta) {
+      var inputMap = {
+        pctFossil: 'cfg-pct-fossil',
+        pctEthanol: 'cfg-pct-ethanol',
+        pctEthGas: 'cfg-pct-eth-gas'
+      };
+      var el = document.getElementById(inputMap[field]);
+      var current = parseInt(el.value, 10) || 0;
+      var next = Math.max(1, Math.min(99, current + delta));
+      el.value = next;
+      config[field] = next;
+
+      if (field === 'pctFossil') {
+        config.pctEthanol = 100 - config.pctFossil;
+        document.getElementById('cfg-pct-ethanol').value = config.pctEthanol;
+      } else if (field === 'pctEthanol') {
+        config.pctFossil = 100 - config.pctEthanol;
+        document.getElementById('cfg-pct-fossil').value = config.pctFossil;
+      }
+      validateConfig();
+    }
+
+    function validateConfig() {
+      var hint = document.getElementById('cfg-sum-hint');
+      var sum = config.pctFossil + config.pctEthanol;
+      if (sum !== 100) {
+        hint.textContent = 'Total: ' + sum + '% (deve ser 100%)';
+        hint.className = 'field-hint error';
+        return false;
+      }
+      hint.textContent = 'Total: 100%';
+      hint.className = 'field-hint ok';
+      return true;
+    }
+
+    function saveSettings() {
+      if (!validateConfig()) return;
+      config.pctFossil = parseInt(document.getElementById('cfg-pct-fossil').value, 10);
+      config.pctEthanol = parseInt(document.getElementById('cfg-pct-ethanol').value, 10);
+      config.pctEthGas = parseInt(document.getElementById('cfg-pct-eth-gas').value, 10);
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      updateSubtitle();
+      autoCalc();
+      closeSettings();
+    }
+
+    function resetSettings() {
+      config = { pctFossil: 20, pctEthanol: 80, pctEthGas: 32 };
+      document.getElementById('cfg-pct-fossil').value = config.pctFossil;
+      document.getElementById('cfg-pct-ethanol').value = config.pctEthanol;
+      document.getElementById('cfg-pct-eth-gas').value = config.pctEthGas;
+      validateConfig();
+    }
+
+    function loadConfig() {
+      var raw = localStorage.getItem(CONFIG_KEY);
+      if (!raw) return;
+      try {
+        var data = JSON.parse(raw);
+        if (data.pctFossil) config.pctFossil = data.pctFossil;
+        if (data.pctEthanol) config.pctEthanol = data.pctEthanol;
+        if (data.pctEthGas) config.pctEthGas = data.pctEthGas;
+        updateSubtitle();
+      } catch (e) { /* ignora */ }
     }
 
     /* ===== STEPPER ===== */
@@ -527,17 +830,13 @@
     }
 
     /* ===== MATEMÁTICA =====
-       Gasolina comercial = 68% fóssil, 32% etanol
+       Gasolina comercial = (1 - %etanolGas) fóssil, %etanolGas etanol
        Etanol hidratado    = 100% etanol
-       Regra: 20% fóssil + 80% etanol no tanque
+       Regra: %fossil fóssil + %etanol etanol no tanque
 
-       0.68 * G = 0.20 * (G + E)
-       G + E = L
-       => G = L * 0.20 / 0.68
-       => E = L - G
+       G = L * %fossil / (1 - %etanolGas)
+       E = L - G
     */
-
-    var RATIO_GAS = 0.20 / 0.68; // ~0.2941176
 
     /* ===== CALCULAR POR LITROS ===== */
     function calcLitros() {
@@ -550,7 +849,8 @@
         return;
       }
 
-      var gasLiters = Math.ceil(liters * RATIO_GAS);
+      var ratioGas = calcRatio();
+      var gasLiters = Math.ceil(liters * ratioGas);
       var ethLiters = Math.ceil(liters - gasLiters);
       var costGas = gasLiters * priceGas;
       var costEth = ethLiters * priceEth;
@@ -582,7 +882,7 @@
         return;
       }
 
-      var ratioEth = 2.4;
+      var ratioEth = calcEthRatio();
       var custoPorLitroMisto = priceGas + ratioEth * priceEth;
       var gasLiters = Math.floor(budget / custoPorLitroMisto);
       var ethLiters = Math.floor(ratioEth * gasLiters);
@@ -659,6 +959,7 @@
     });
 
     /* Restaura ao carregar e calcula se campos estiverem preenchidos */
+    loadConfig();
     loadFields();
     autoCalc();
   </script>
