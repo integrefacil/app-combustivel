@@ -535,11 +535,12 @@
         return;
       }
 
-      var gasLiters = liters * RATIO_GAS;
-      var ethLiters = liters - gasLiters;
+      var gasLiters = Math.ceil(liters * RATIO_GAS);
+      var ethLiters = Math.ceil(liters - gasLiters);
       var costGas = gasLiters * priceGas;
       var costEth = ethLiters * priceEth;
       var costTotal = costGas + costEth;
+      var totalRounded = gasLiters + ethLiters;
 
       document.getElementById('res-gas-litros').textContent = fmtL(gasLiters);
       document.getElementById('res-gas-sub-litros').textContent =
@@ -549,7 +550,7 @@
         fmtBRL(costEth) + ' (' + pct(ethLiters / liters) + ')';
       document.getElementById('res-total-litros').textContent = fmtBRL(costTotal);
       document.getElementById('res-total-sub-litros').textContent =
-        fmtL(liters) + ' no total — ' + pct(costGas / costTotal) + ' gasolina, ' +
+        totalRounded + ' no total (era ' + fmtL(liters) + ') — ' + pct(costGas / costTotal) + ' gasolina, ' +
         pct(costEth / costTotal) + ' etanol';
 
       document.getElementById('results-litros').classList.add('show');
@@ -568,8 +569,8 @@
 
       var ratioEth = 2.4;
       var custoPorLitroMisto = priceGas + ratioEth * priceEth;
-      var gasLiters = budget / custoPorLitroMisto;
-      var ethLiters = ratioEth * gasLiters;
+      var gasLiters = Math.ceil(budget / custoPorLitroMisto);
+      var ethLiters = Math.ceil(ratioEth * gasLiters);
       var totalLiters = gasLiters + ethLiters;
       var spentGas = gasLiters * priceGas;
       var spentEth = ethLiters * priceEth;
@@ -583,10 +584,10 @@
         fmtBRL(spentEth) + ' (' + pct(ethLiters / totalLiters) + ')';
       document.getElementById('res-total-litros-reais').textContent = fmtL(totalLiters);
       document.getElementById('res-total-litros-sub-reais').textContent =
-        'Tanque de ~' + Math.ceil(totalLiters) + 'L';
+        totalLiters + ' litros no total';
       document.getElementById('res-total-gasto-reais').textContent = fmtBRL(spentTotal);
       document.getElementById('res-total-gasto-sub-reais').textContent =
-        'Sobra: ' + fmtBRL(budget - spentTotal);
+        'Orçamento: ' + fmtBRL(budget) + (spentTotal > budget ? ' (+' + fmtBRL(spentTotal - budget) + ')' : ' (sobra ' + fmtBRL(budget - spentTotal) + ')');
 
       document.getElementById('results-reais').classList.add('show');
     }
