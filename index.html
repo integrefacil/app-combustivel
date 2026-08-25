@@ -25,7 +25,6 @@
       --green-glow: rgba(52, 211, 153, 0.15);
       --orange: #fb923c;
       --orange-glow: rgba(251, 146, 60, 0.15);
-      --red: #f87171;
       --radius: 12px;
       --radius-sm: 8px;
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
@@ -294,18 +293,6 @@
       color: var(--text);
     }
 
-    /* ===== ERROR ===== */
-    .error-msg {
-      color: var(--red);
-      font-size: 0.78rem;
-      margin-top: 4px;
-      display: none;
-    }
-
-    .error-msg.show {
-      display: block;
-    }
-
     /* ===== RESPONSIVE ===== */
     @media (max-width: 400px) {
       .preset-group {
@@ -325,6 +312,24 @@
     <p>20% fóssil + 80% etanol no tanque</p>
   </header>
 
+  <!-- ========== PREÇOS COMPARTILHADOS ========== -->
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="field" style="margin-bottom: 12px;">
+      <label>Preço da Gasolina (R$/L)</label>
+      <div class="input-wrapper">
+        <span class="prefix">R$</span>
+        <input type="text" id="price-gas" data-raw-value="" placeholder="Ex: 5,89" inputmode="decimal" autocomplete="off">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom: 0;">
+      <label>Preço do Etanol (R$/L)</label>
+      <div class="input-wrapper">
+        <span class="prefix">R$</span>
+        <input type="text" id="price-eth" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
   <!-- Tabs -->
   <nav class="tabs">
     <button class="tab-btn active" data-tab="litros" onclick="switchTab('litros')">
@@ -340,24 +345,6 @@
     <div id="section-litros" class="section active">
 
       <div class="field">
-        <label>Preço da Gasolina (R$/L)</label>
-        <div class="input-wrapper">
-          <span class="prefix">R$</span>
-          <input type="text" id="price-gas-litros" data-raw-value="" placeholder="Ex: 5,89" inputmode="decimal" autocomplete="off">
-        </div>
-        <div class="error-msg" id="err-price-gas-litros">Informe um preço válido.</div>
-      </div>
-
-      <div class="field">
-        <label>Preço do Etanol (R$/L)</label>
-        <div class="input-wrapper">
-          <span class="prefix">R$</span>
-          <input type="text" id="price-eth-litros" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
-        </div>
-        <div class="error-msg" id="err-price-eth-litros">Informe um preço válido.</div>
-      </div>
-
-      <div class="field">
         <label>Litros Totais Desejados</label>
         <input type="number" id="litros-custom" step="0.1" min="1" placeholder="Ou digite um valor" inputmode="decimal">
         <div class="preset-group">
@@ -368,7 +355,6 @@
           <button class="preset-btn" onclick="selectPreset(54, this)">Tanque Cheio</button>
           <button class="preset-btn" onclick="selectPreset(0, this)">Custom</button>
         </div>
-        <div class="error-msg" id="err-litros">Informe a quantidade de litros.</div>
       </div>
 
       <!-- Resultados -->
@@ -398,30 +384,11 @@
     <div id="section-reais" class="section">
 
       <div class="field">
-        <label>Preço da Gasolina (R$/L)</label>
-        <div class="input-wrapper">
-          <span class="prefix">R$</span>
-          <input type="text" id="price-gas-reais" data-raw-value="" placeholder="Ex: 5,89" inputmode="decimal" autocomplete="off">
-        </div>
-        <div class="error-msg" id="err-price-gas-reais">Informe um preço válido.</div>
-      </div>
-
-      <div class="field">
-        <label>Preço do Etanol (R$/L)</label>
-        <div class="input-wrapper">
-          <span class="prefix">R$</span>
-          <input type="text" id="price-eth-reais" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
-        </div>
-        <div class="error-msg" id="err-price-eth-reais">Informe um preço válido.</div>
-      </div>
-
-      <div class="field">
         <label>Valor Disponível (R$)</label>
         <div class="input-wrapper">
           <span class="prefix">R$</span>
           <input type="text" id="budget-reais" data-raw-value="" placeholder="Ex: 200,00" inputmode="decimal" autocomplete="off">
         </div>
-        <div class="error-msg" id="err-budget-reais">Informe um valor válido.</div>
       </div>
 
       <!-- Resultados -->
@@ -538,21 +505,6 @@
       return isNaN(v) ? null : v;
     }
 
-    function showErr(id) {
-      document.getElementById(id).classList.add('show');
-    }
-
-    function hideErr(id) {
-      document.getElementById(id).classList.remove('show');
-    }
-
-    function clearErrors(prefix) {
-      var ids = document.querySelectorAll('[id^="err-' + prefix + '"]');
-      for (var i = 0; i < ids.length; i++) {
-        ids[i].classList.remove('show');
-      }
-    }
-
     function fmtBRL(n) {
       return 'R$ ' + n.toFixed(2).replace('.', ',');
     }
@@ -580,15 +532,10 @@
 
     /* ===== CALCULAR POR LITROS ===== */
     function calcLitros() {
-      clearErrors('price-gas-litros');
-      clearErrors('price-eth-litros');
-      clearErrors('litros');
-
-      var priceGas = val('price-gas-litros');
-      var priceEth = val('price-eth-litros');
+      var priceGas = val('price-gas');
+      var priceEth = val('price-eth');
       var liters = val('litros-custom');
 
-      /* Auto: só calcula se todos preenchidos, senão limpa resultados */
       if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0 || liters === null || liters <= 0) {
         document.getElementById('results-litros').classList.remove('show');
         return;
@@ -616,15 +563,10 @@
 
     /* ===== CALCULAR POR REAIS ===== */
     function calcReais() {
-      clearErrors('price-gas-reais');
-      clearErrors('price-eth-reais');
-      clearErrors('budget-reais');
-
-      var priceGas = val('price-gas-reais');
-      var priceEth = val('price-eth-reais');
+      var priceGas = val('price-gas');
+      var priceEth = val('price-eth');
       var budget = val('budget-reais');
 
-      /* Auto: só calcula se todos preenchidos, senão limpa resultados */
       if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0 || budget === null || budget <= 0) {
         document.getElementById('results-reais').classList.remove('show');
         return;
@@ -657,12 +599,8 @@
 
     /* ===== AUTO-CALCULO: atualiza a cada input ===== */
     function autoCalc() {
-      var active = document.querySelector('.section.active');
-      if (active && active.id === 'section-litros') {
-        calcLitros();
-      } else {
-        calcReais();
-      }
+      calcLitros();
+      calcReais();
     }
 
     /* ===== LOCALSTORAGE: SALVAR / RESTAURAR ===== */
@@ -672,11 +610,9 @@
       var activeTab = document.querySelector('.tab-btn.active');
       var data = {
         activeTab: activeTab ? activeTab.dataset.tab : 'litros',
-        priceGasLitros: document.getElementById('price-gas-litros').dataset.rawValue || '',
-        priceEthLitros: document.getElementById('price-eth-litros').dataset.rawValue || '',
+        priceGas: document.getElementById('price-gas').dataset.rawValue || '',
+        priceEth: document.getElementById('price-eth').dataset.rawValue || '',
         litrosCustom: document.getElementById('litros-custom').value,
-        priceGasReais: document.getElementById('price-gas-reais').dataset.rawValue || '',
-        priceEthReais: document.getElementById('price-eth-reais').dataset.rawValue || '',
         budgetReais: document.getElementById('budget-reais').dataset.rawValue || ''
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -693,18 +629,16 @@
           el.dataset.rawValue = rawVal;
           maskCurrency(el);
         }
-        restoreCurrency('price-gas-litros', data.priceGasLitros);
-        restoreCurrency('price-eth-litros', data.priceEthLitros);
+        restoreCurrency('price-gas', data.priceGas);
+        restoreCurrency('price-eth', data.priceEth);
         if (data.litrosCustom) document.getElementById('litros-custom').value = data.litrosCustom;
-        restoreCurrency('price-gas-reais', data.priceGasReais);
-        restoreCurrency('price-eth-reais', data.priceEthReais);
         restoreCurrency('budget-reais', data.budgetReais);
         if (data.activeTab && data.activeTab !== 'litros') switchTab(data.activeTab);
       } catch (e) { /* ignora dados corrompidos */ }
     }
 
     /* Inicializa máscaras nos campos de moeda */
-    ['price-gas-litros', 'price-eth-litros', 'price-gas-reais', 'price-eth-reais', 'budget-reais'].forEach(attachCurrencyMask);
+    ['price-gas', 'price-eth', 'budget-reais'].forEach(attachCurrencyMask);
 
     /* Salva e recalcula a cada alteração de input */
     document.querySelectorAll('input').forEach(function(input) {
