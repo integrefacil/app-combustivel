@@ -170,35 +170,38 @@
       color: #555;
     }
 
-    /* Litros preset */
-    .preset-group {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    /* Stepper */
+    .stepper {
+      display: flex;
       gap: 8px;
-      margin-top: 8px;
+      align-items: center;
     }
 
-    .preset-btn {
-      padding: 8px;
+    .stepper .input-wrapper {
+      flex: 1;
+    }
+
+    .stepper-btn {
+      width: 48px;
+      height: 48px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       background: var(--bg);
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      font-weight: 600;
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
+      flex-shrink: 0;
     }
 
-    .preset-btn:hover {
+    .stepper-btn:hover {
       border-color: var(--accent);
       color: var(--accent);
     }
 
-    .preset-btn.selected {
-      border-color: var(--accent);
-      background: var(--accent-glow);
-      color: var(--accent);
+    .stepper-btn:active {
+      transform: scale(0.92);
     }
 
     /* ===== RESULTADOS ===== */
@@ -295,8 +298,9 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 400px) {
-      .preset-group {
-        grid-template-columns: repeat(3, 1fr);
+      .stepper-btn {
+        width: 44px;
+        height: 44px;
       }
 
       .result-card .value {
@@ -346,20 +350,13 @@
 
       <div class="field">
         <label>Litros Totais Desejados</label>
-        <div class="input-wrapper">
-          <span class="prefix">L</span>
-          <input type="number" id="litros-custom" step="0.1" min="1" placeholder="Ex: 30" inputmode="decimal">
-        </div>
-        <div class="preset-group">
-          <button class="preset-btn" onclick="selectPreset(10, this)">10 L</button>
-          <button class="preset-btn" onclick="selectPreset(15, this)">15 L</button>
-          <button class="preset-btn" onclick="selectPreset(20, this)">20 L</button>
-          <button class="preset-btn" onclick="selectPreset(25, this)">25 L</button>
-          <button class="preset-btn" onclick="selectPreset(30, this)">30 L</button>
-          <button class="preset-btn" onclick="selectPreset(35, this)">35 L</button>
-          <button class="preset-btn" onclick="selectPreset(40, this)">40 L</button>
-          <button class="preset-btn" onclick="selectPreset(45, this)">45 L</button>
-          <button class="preset-btn" onclick="selectPreset(50, this)">50 L</button>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="stepLiters(-5)">−</button>
+          <div class="input-wrapper">
+            <span class="prefix">L</span>
+            <input type="number" id="litros-custom" step="1" min="1" placeholder="0" inputmode="decimal">
+          </div>
+          <button class="stepper-btn" onclick="stepLiters(5)">+</button>
         </div>
       </div>
 
@@ -443,13 +440,12 @@
       document.getElementById('section-reais').classList.toggle('active', tab === 'reais');
     }
 
-    /* ===== PRESET LITERS ===== */
-    function selectPreset(liters, el) {
-      document.querySelectorAll('.preset-btn').forEach(function(b) {
-        b.classList.remove('selected');
-      });
-      el.classList.add('selected');
-      document.getElementById('litros-custom').value = liters;
+    /* ===== STEPPER ===== */
+    function stepLiters(delta) {
+      var input = document.getElementById('litros-custom');
+      var current = parseInt(input.value, 10) || 0;
+      var next = Math.max(1, current + delta);
+      input.value = next;
       saveFields();
       autoCalc();
     }
