@@ -346,7 +346,10 @@
 
       <div class="field">
         <label>Litros Totais Desejados</label>
-        <input type="number" id="litros-custom" step="0.1" min="1" placeholder="Ou digite um valor" inputmode="decimal">
+        <div class="input-wrapper">
+          <span class="prefix">L</span>
+          <input type="number" id="litros-custom" step="0.1" min="1" placeholder="Ex: 30" inputmode="decimal">
+        </div>
         <div class="preset-group">
           <button class="preset-btn" onclick="selectPreset(10, this)">10 L</button>
           <button class="preset-btn" onclick="selectPreset(20, this)">20 L</button>
