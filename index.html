@@ -173,7 +173,7 @@
     /* Litros preset */
     .preset-group {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       margin-top: 8px;
     }
@@ -352,8 +352,6 @@
           <button class="preset-btn" onclick="selectPreset(20, this)">20 L</button>
           <button class="preset-btn" onclick="selectPreset(30, this)">30 L</button>
           <button class="preset-btn" onclick="selectPreset(40, this)">40 L</button>
-          <button class="preset-btn" onclick="selectPreset(54, this)">Tanque Cheio</button>
-          <button class="preset-btn" onclick="selectPreset(0, this)">Custom</button>
         </div>
       </div>
 
@@ -443,14 +441,7 @@
         b.classList.remove('selected');
       });
       el.classList.add('selected');
-
-      var input = document.getElementById('litros-custom');
-      if (liters === 0) {
-        input.value = '';
-        input.focus();
-      } else {
-        input.value = liters;
-      }
+      document.getElementById('litros-custom').value = liters;
       saveFields();
       autoCalc();
     }
