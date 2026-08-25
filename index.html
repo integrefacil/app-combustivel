@@ -388,9 +388,13 @@
 
       <div class="field">
         <label>Valor Disponível (R$)</label>
-        <div class="input-wrapper">
-          <span class="prefix">R$</span>
-          <input type="text" id="budget-reais" data-raw-value="" placeholder="Ex: 200,00" inputmode="decimal" autocomplete="off">
+        <div class="stepper">
+          <button class="stepper-btn" onclick="stepBudget(-10)">−</button>
+          <div class="input-wrapper">
+            <span class="prefix">R$</span>
+            <input type="text" id="budget-reais" data-raw-value="" placeholder="0,00" inputmode="decimal" autocomplete="off">
+          </div>
+          <button class="stepper-btn" onclick="stepBudget(10)">+</button>
         </div>
       </div>
 
@@ -446,6 +450,16 @@
       var current = parseInt(input.value, 10) || 0;
       var next = Math.max(1, current + delta);
       input.value = next;
+      saveFields();
+      autoCalc();
+    }
+
+    function stepBudget(delta) {
+      var el = document.getElementById('budget-reais');
+      var current = parseInt(el.dataset.rawValue, 10) || 0;
+      var next = Math.max(100, current + delta * 100);
+      el.dataset.rawValue = next;
+      maskCurrency(el);
       saveFields();
       autoCalc();
     }
