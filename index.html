@@ -173,7 +173,7 @@
     /* Litros preset */
     .preset-group {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       margin-top: 8px;
     }
@@ -296,7 +296,7 @@
     /* ===== RESPONSIVE ===== */
     @media (max-width: 400px) {
       .preset-group {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .result-card .value {
@@ -352,9 +352,14 @@
         </div>
         <div class="preset-group">
           <button class="preset-btn" onclick="selectPreset(10, this)">10 L</button>
+          <button class="preset-btn" onclick="selectPreset(15, this)">15 L</button>
           <button class="preset-btn" onclick="selectPreset(20, this)">20 L</button>
+          <button class="preset-btn" onclick="selectPreset(25, this)">25 L</button>
           <button class="preset-btn" onclick="selectPreset(30, this)">30 L</button>
+          <button class="preset-btn" onclick="selectPreset(35, this)">35 L</button>
           <button class="preset-btn" onclick="selectPreset(40, this)">40 L</button>
+          <button class="preset-btn" onclick="selectPreset(45, this)">45 L</button>
+          <button class="preset-btn" onclick="selectPreset(50, this)">50 L</button>
         </div>
       </div>
 
