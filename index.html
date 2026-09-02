@@ -459,10 +459,16 @@
       color: var(--orange);
     }
 
-    .fuel-verdict .verdict-icon {
-      font-size: 1.1rem;
+    .fuel-verdict .verdict-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
       flex-shrink: 0;
     }
+
+    .verdict-ethanol .verdict-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .verdict-neutral .verdict-dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+    .verdict-gasoline .verdict-dot { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
 
     .fuel-verdict .verdict-text {
       flex: 1;
@@ -986,27 +992,24 @@
 
       var ratio = priceEth / priceGas;
       var pctRatio = (ratio * 100).toFixed(1).replace('.', ',');
-      var icon, text, verdictClass;
+      var text, verdictClass;
 
       if (ratio <= 0.70) {
-        icon = '✓';
-        text = 'Etanol compensa';
+        text = 'Abasteça: Etanol compensa';
         verdictClass = 'verdict-ethanol';
       } else if (ratio <= 0.75) {
-        icon = '~';
-        text = 'Zona de equilíbrio';
+        text = 'Abasteça: Qualquer um';
         verdictClass = 'verdict-neutral';
       } else {
-        icon = '✗';
-        text = 'Gasolina compensa';
+        text = 'Abasteça: Gasolina compensa';
         verdictClass = 'verdict-gasoline';
       }
 
       el.className = 'fuel-verdict show ' + verdictClass;
       el.innerHTML =
-        '<span class="verdict-icon">' + icon + '</span>' +
+        '<span class="verdict-dot"></span>' +
         '<span class="verdict-text">' + text + '</span>' +
-        '<span class="verdict-pct">' + pctRatio + '%</span>';
+        '<span class="verdict-pct">' + pctRatio + '</span>';
     }
 
     /* ===== LOCALSTORAGE: SALVAR / RESTAURAR ===== */
