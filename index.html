@@ -424,6 +424,56 @@
     .field-hint.error { color: var(--red, #f87171); }
     .field-hint.ok { color: var(--green); }
 
+    /* ===== FUEL VERDICT ===== */
+    .fuel-verdict {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.4;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .fuel-verdict.show { display: flex; }
+
+    .fuel-verdict.verdict-ethanol {
+      background: var(--green-glow);
+      border-color: rgba(52, 211, 153, 0.25);
+      color: var(--green);
+    }
+
+    .fuel-verdict.verdict-neutral {
+      background: var(--accent-glow);
+      border-color: rgba(79, 140, 255, 0.25);
+      color: var(--accent);
+    }
+
+    .fuel-verdict.verdict-gasoline {
+      background: var(--orange-glow);
+      border-color: rgba(251, 146, 60, 0.25);
+      color: var(--orange);
+    }
+
+    .fuel-verdict .verdict-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .fuel-verdict .verdict-text {
+      flex: 1;
+    }
+
+    .fuel-verdict .verdict-pct {
+      font-size: 0.95rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
     /* ===== INFO BOX ===== */
     .info-box {
       margin-top: 20px;
@@ -485,6 +535,8 @@
         <input type="text" id="price-eth" data-raw-value="" placeholder="Ex: 3,99" inputmode="decimal" autocomplete="off">
       </div>
     </div>
+
+    <div class="fuel-verdict" id="fuel-verdict"></div>
   </div>
 
   <!-- Tabs -->
@@ -918,6 +970,43 @@
     function autoCalc() {
       calcLitros();
       calcReais();
+      updateFuelVerdict();
+    }
+
+    /* ===== FUEL VERDICT: etanol vs gasolina ===== */
+    function updateFuelVerdict() {
+      var priceGas = val('price-gas');
+      var priceEth = val('price-eth');
+      var el = document.getElementById('fuel-verdict');
+
+      if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0) {
+        el.classList.remove('show');
+        return;
+      }
+
+      var ratio = priceEth / priceGas;
+      var pctRatio = (ratio * 100).toFixed(1).replace('.', ',');
+      var icon, text, verdictClass;
+
+      if (ratio <= 0.70) {
+        icon = '✓';
+        text = 'Etanol compensa';
+        verdictClass = 'verdict-ethanol';
+      } else if (ratio <= 0.75) {
+        icon = '~';
+        text = 'Zona de equilíbrio';
+        verdictClass = 'verdict-neutral';
+      } else {
+        icon = '✗';
+        text = 'Gasolina compensa';
+        verdictClass = 'verdict-gasoline';
+      }
+
+      el.className = 'fuel-verdict show ' + verdictClass;
+      el.innerHTML =
+        '<span class="verdict-icon">' + icon + '</span>' +
+        '<span class="verdict-text">' + text + '</span>' +
+        '<span class="verdict-pct">' + pctRatio + '%</span>';
     }
 
     /* ===== LOCALSTORAGE: SALVAR / RESTAURAR ===== */
