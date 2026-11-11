@@ -107,12 +107,12 @@
 
     .tab-btn {
       flex: 1;
-      padding: 10px 16px;
+      padding: 10px 8px;
       border: none;
       border-radius: var(--radius-sm);
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -177,6 +177,11 @@
       pointer-events: none;
     }
 
+    /* Prefixo largo (km, km/L) precisa de mais respiro */
+    .input-wrapper.prefix-wide input {
+      padding-left: 52px;
+    }
+
     .input-wrapper input {
       width: 100%;
       padding: 12px 14px 12px 32px;
@@ -197,6 +202,18 @@
 
     .input-wrapper input::placeholder {
       color: #555;
+    }
+
+    /* Remove setas (spinners) de campos numéricos */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
     }
 
     /* Stepper */
@@ -553,6 +570,9 @@
     <button class="tab-btn" data-tab="reais" onclick="switchTab('reais')">
       Por Valor (R$)
     </button>
+    <button class="tab-btn" data-tab="percurso" onclick="switchTab('percurso')">
+      Por Percurso
+    </button>
   </nav>
 
   <!-- ========== SEÇÃO 1: POR LITROS ========== -->
@@ -565,7 +585,7 @@
           <button class="stepper-btn" onclick="stepLiters(-5)">−</button>
           <div class="input-wrapper">
             <span class="prefix">L</span>
-            <input type="number" id="litros-custom" step="1" min="1" placeholder="0" inputmode="decimal">
+            <input type="text" id="litros-custom" maxlength="4" placeholder="0" inputmode="numeric" autocomplete="off">
           </div>
           <button class="stepper-btn" onclick="stepLiters(5)">+</button>
         </div>
@@ -636,12 +656,70 @@
         </div>
       </div>
     </div>
+
+    <!-- ========== SEÇÃO 3: POR PERCURSO ========== -->
+    <div id="section-percurso" class="section">
+
+      <div class="field">
+        <label>Distância do Percurso (km)</label>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="stepKm(-10)">−</button>
+          <div class="input-wrapper prefix-wide">
+            <span class="prefix">km</span>
+            <input type="text" id="percurso-km" maxlength="5" placeholder="0" inputmode="numeric" autocomplete="off">
+          </div>
+          <button class="stepper-btn" onclick="stepKm(10)">+</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Consumo Médio do Carro (km/L)</label>
+        <div class="input-wrapper prefix-wide">
+          <span class="prefix">km/L</span>
+          <input type="text" id="percurso-consumo" maxlength="6" placeholder="Ex: 10,5" inputmode="decimal" autocomplete="off">
+        </div>
+        <div class="field-hint" id="percurso-hint">Média rodando com a mistura atual do tanque</div>
+      </div>
+
+      <!-- Resultados -->
+      <div class="results" id="results-percurso">
+        <div class="results-title">Combustível necessário</div>
+        <div class="result-grid">
+          <div class="result-card gasoline">
+            <div class="label">Gasolina Comum</div>
+            <div class="value" id="res-gas-percurso">—</div>
+            <div class="sub" id="res-gas-sub-percurso"></div>
+          </div>
+          <div class="result-card ethanol">
+            <div class="label">Etanol Hidratado</div>
+            <div class="value" id="res-eth-percurso">—</div>
+            <div class="sub" id="res-eth-sub-percurso"></div>
+          </div>
+          <div class="result-card total">
+            <div class="label">Total em Litros</div>
+            <div class="value" id="res-total-litros-percurso">—</div>
+            <div class="sub" id="res-total-litros-sub-percurso"></div>
+          </div>
+          <div class="result-card total">
+            <div class="label">Valor Gasto</div>
+            <div class="value" id="res-total-gasto-percurso">—</div>
+            <div class="sub" id="res-total-gasto-sub-percurso"></div>
+          </div>
+          <div class="result-card total full-width">
+            <div class="label">Custo por km</div>
+            <div class="value" id="res-custo-km-percurso">—</div>
+            <div class="sub" id="res-custo-km-sub-percurso"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Info -->
   <div class="info-box">
     <strong>Como funciona:</strong> A gasolina comum já contém etanol na composição.
     A mistura ideal é calculada conforme as configurações definidas (acessíveis pelo ícone de engrenagem).
+    Na aba Por Percurso, informe a distância e o consumo médio do carro para saber quanto abastecer.
     O resultado é aproximado e pode variar conforme o posto.
   </div>
 
@@ -660,7 +738,7 @@
             <button class="stepper-btn" onclick="stepConfig('pctFossil', -1)">−</button>
             <div class="input-wrapper">
               <span class="prefix">%</span>
-              <input type="number" id="cfg-pct-fossil" min="1" max="99" step="1" inputmode="numeric">
+              <input type="text" id="cfg-pct-fossil" maxlength="2" inputmode="numeric" autocomplete="off">
             </div>
             <button class="stepper-btn" onclick="stepConfig('pctFossil', 1)">+</button>
           </div>
@@ -672,7 +750,7 @@
             <button class="stepper-btn" onclick="stepConfig('pctEthanol', -1)">−</button>
             <div class="input-wrapper">
               <span class="prefix">%</span>
-              <input type="number" id="cfg-pct-ethanol" min="1" max="99" step="1" inputmode="numeric">
+              <input type="text" id="cfg-pct-ethanol" maxlength="2" inputmode="numeric" autocomplete="off">
             </div>
             <button class="stepper-btn" onclick="stepConfig('pctEthanol', 1)">+</button>
           </div>
@@ -685,7 +763,7 @@
             <button class="stepper-btn" onclick="stepConfig('pctEthGas', -1)">−</button>
             <div class="input-wrapper">
               <span class="prefix">%</span>
-              <input type="number" id="cfg-pct-eth-gas" min="0" max="99" step="1" inputmode="numeric">
+              <input type="text" id="cfg-pct-eth-gas" maxlength="2" inputmode="numeric" autocomplete="off">
             </div>
             <button class="stepper-btn" onclick="stepConfig('pctEthGas', 1)">+</button>
           </div>
@@ -707,6 +785,7 @@
       });
       document.getElementById('section-litros').classList.toggle('active', tab === 'litros');
       document.getElementById('section-reais').classList.toggle('active', tab === 'reais');
+      document.getElementById('section-percurso').classList.toggle('active', tab === 'percurso');
       saveFields();
     }
 
@@ -832,6 +911,15 @@
       autoCalc();
     }
 
+    function stepKm(delta) {
+      var input = document.getElementById('percurso-km');
+      var current = parseInt(input.value, 10) || 0;
+      var next = Math.max(1, current + delta);
+      input.value = next;
+      saveFields();
+      autoCalc();
+    }
+
     /* ===== MÁSCARA MOEDA BR (R$ X.XXX,XX) ===== */
     function maskCurrency(input) {
       var raw = input.dataset.rawValue || '';
@@ -868,6 +956,31 @@
       });
     }
 
+    /* ===== MÁSCARAS: APENAS DÍGITOS / DECIMAL ===== */
+    function attachDigitsMask(inputId, maxDigits) {
+      var el = document.getElementById(inputId);
+      el.addEventListener('input', function() {
+        var digits = this.value.replace(/\D/g, '');
+        if (maxDigits) digits = digits.slice(0, maxDigits);
+        this.value = digits;
+      });
+    }
+
+    function attachDecimalMask(inputId, maxDecimals, maxIntDigits) {
+      var el = document.getElementById(inputId);
+      el.addEventListener('input', function() {
+        var raw = this.value.replace(/[^\d,.]/g, '').replace(/\./g, ',');
+        var parts = raw.split(',');
+        var intPart = parts[0].slice(0, maxIntDigits || 3);
+        if (parts.length === 1) {
+          this.value = intPart;
+          return;
+        }
+        /* Normaliza ",5" para "0,5" */
+        this.value = (intPart || '0') + ',' + parts[1].slice(0, maxDecimals);
+      });
+    }
+
     /* ===== HELPERS ===== */
     function val(id) {
       var el = document.getElementById(id);
@@ -878,12 +991,16 @@
         var v = parseInt(raw, 10) / 100;
         return isNaN(v) ? null : v;
       }
-      var v = parseFloat(el.value);
+      var v = parseFloat(String(el.value).replace(',', '.'));
       return isNaN(v) ? null : v;
     }
 
     function fmtBRL(n) {
       return 'R$ ' + n.toFixed(2).replace('.', ',');
+    }
+
+    function fmtBRLPrecise(n) {
+      return 'R$ ' + n.toFixed(3).replace('.', ',');
     }
 
     function fmtL(n) {
@@ -972,10 +1089,52 @@
       document.getElementById('results-reais').classList.add('show');
     }
 
+    /* ===== CALCULAR POR PERCURSO ===== */
+    function calcPercurso() {
+      var priceGas = val('price-gas');
+      var priceEth = val('price-eth');
+      var km = val('percurso-km');
+      var consumo = val('percurso-consumo');
+
+      if (priceGas === null || priceGas <= 0 || priceEth === null || priceEth <= 0 || km === null || km <= 0 || consumo === null || consumo <= 0) {
+        document.getElementById('results-percurso').classList.remove('show');
+        return;
+      }
+
+      var litrosTotais = km / consumo;
+      var ratioGas = calcRatio();
+      var gasLiters = Math.ceil(litrosTotais * ratioGas);
+      var ethLiters = Math.max(0, Math.ceil(litrosTotais - gasLiters));
+      var totalLiters = gasLiters + ethLiters;
+      var costGas = gasLiters * priceGas;
+      var costEth = ethLiters * priceEth;
+      var costTotal = costGas + costEth;
+      var costPerKm = costTotal / km;
+
+      document.getElementById('res-gas-percurso').textContent = fmtL(gasLiters);
+      document.getElementById('res-gas-sub-percurso').textContent =
+        fmtBRL(costGas) + ' (' + pct(costGas / costTotal) + ' do custo)';
+      document.getElementById('res-eth-percurso').textContent = fmtL(ethLiters);
+      document.getElementById('res-eth-sub-percurso').textContent =
+        fmtBRL(costEth) + ' (' + pct(costEth / costTotal) + ' do custo)';
+      document.getElementById('res-total-litros-percurso').textContent = fmtL(totalLiters);
+      document.getElementById('res-total-litros-sub-percurso').textContent =
+        fmtL(litrosTotais) + ' para ' + km + ' km a ' + String(consumo).replace('.', ',') + ' km/L';
+      document.getElementById('res-total-gasto-percurso').textContent = fmtBRL(costTotal);
+      document.getElementById('res-total-gasto-sub-percurso').textContent =
+        'Percurso de ' + km + ' km';
+      document.getElementById('res-custo-km-percurso').textContent = fmtBRLPrecise(costPerKm) + '/km';
+      document.getElementById('res-custo-km-sub-percurso').textContent =
+        'Para ' + km + ' km: ' + fmtBRL(costTotal);
+
+      document.getElementById('results-percurso').classList.add('show');
+    }
+
     /* ===== AUTO-CALCULO: atualiza a cada input ===== */
     function autoCalc() {
       calcLitros();
       calcReais();
+      calcPercurso();
       updateFuelVerdict();
     }
 
@@ -1022,7 +1181,9 @@
         priceGas: document.getElementById('price-gas').dataset.rawValue || '',
         priceEth: document.getElementById('price-eth').dataset.rawValue || '',
         litrosCustom: document.getElementById('litros-custom').value,
-        budgetReais: document.getElementById('budget-reais').dataset.rawValue || ''
+        budgetReais: document.getElementById('budget-reais').dataset.rawValue || '',
+        percursoKm: document.getElementById('percurso-km').value,
+        percursoConsumo: document.getElementById('percurso-consumo').value
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
@@ -1042,12 +1203,22 @@
         restoreCurrency('price-eth', data.priceEth);
         if (data.litrosCustom) document.getElementById('litros-custom').value = data.litrosCustom;
         restoreCurrency('budget-reais', data.budgetReais);
+        if (data.percursoKm) document.getElementById('percurso-km').value = data.percursoKm;
+        if (data.percursoConsumo) document.getElementById('percurso-consumo').value = data.percursoConsumo;
         if (data.activeTab && data.activeTab !== 'litros') switchTab(data.activeTab);
       } catch (e) { /* ignora dados corrompidos */ }
     }
 
     /* Inicializa máscaras nos campos de moeda */
     ['price-gas', 'price-eth', 'budget-reais'].forEach(attachCurrencyMask);
+
+    /* Máscaras dos demais campos: apenas dígitos / decimal */
+    attachDigitsMask('litros-custom', 4);
+    attachDigitsMask('percurso-km', 5);
+    attachDecimalMask('percurso-consumo', 2, 3);
+    ['cfg-pct-fossil', 'cfg-pct-ethanol', 'cfg-pct-eth-gas'].forEach(function(id) {
+      attachDigitsMask(id, 2);
+    });
 
     /* Salva e recalcula a cada alteração de input */
     document.querySelectorAll('input').forEach(function(input) {
